@@ -1,13 +1,13 @@
 package com.nitish.web;
 
-import org.springframework.http.HttpStatusCode;
+import org.springframework.http.HttpStatus;
 
 public class DefaultWebResultResponse<T> implements AbstractWebResultResponse<T> {
 
-    private HttpStatusCode statusCode;
+    private HttpStatus statusCode;
     private T data;
 
-    public DefaultWebResultResponse(HttpStatusCode statusCode, T data){
+    public DefaultWebResultResponse(HttpStatus statusCode, T data){
         super();
         this.statusCode = statusCode;
         this.data = data;
@@ -17,8 +17,9 @@ public class DefaultWebResultResponse<T> implements AbstractWebResultResponse<T>
         return data;
     }
 
-    public HttpStatusCode getStatusCode() {
+    public HttpStatus getStatusCode() {
         return statusCode;
     }
+
 }
 

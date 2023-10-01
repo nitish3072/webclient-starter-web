@@ -49,7 +49,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 			HttpStatusCode status,
 			WebRequest request) {
 		LOGGER.error("HttpRequestMethodNotSupportedException: {} : {}", ex.getMessage(), ExceptionUtils.getStackTrace(ex));
-		return new ResponseEntity<>(new DefaultWebResultResponse<>("Error !!!!! handleHttpRequestMethodNotSupported", ex.getLocalizedMessage()), status);
+		return new ResponseEntity<>(new DefaultWebResultResponse<>(HttpStatus.valueOf(status.value()), "Error !!!!! handleHttpRequestMethodNotSupported"), status);
 	}
 
 	@Override
@@ -66,7 +66,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 			errors.add(error.getObjectName() + ": " + error.getDefaultMessage());
 		}
 		LOGGER.error("MethodArgumentNotValidException: {} : {}", ex.getMessage(), ExceptionUtils.getStackTrace(ex));
-		return new ResponseEntity<>(new DefaultWebResultResponse<>("Error !!!!! handleMethodArgumentNotValid", errors), status);
+		return new ResponseEntity<>(new DefaultWebResultResponse<>(HttpStatus.valueOf(status.value()), "Error !!!!! handleMethodArgumentNotValid"), status);
 	}
 
 	@Override
@@ -76,7 +76,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 		String error = ex.getParameterName() + " parameter is missing";
 		LOGGER.error("MissingServletRequestParameterException: {} : {}", ex.getMessage(), ExceptionUtils.getStackTrace(ex));
 
-		return new ResponseEntity<>(new DefaultWebResultResponse<>("Error !!!!! handleMissingServletRequestParameter", error), status);
+		return new ResponseEntity<>(new DefaultWebResultResponse<>(HttpStatus.valueOf(status.value()), "Error !!!!! handleMissingServletRequestParameter"), status);
 	}
 
 	@Override
@@ -85,7 +85,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 			HttpStatusCode status, WebRequest request) {
 		LOGGER.error("ServletRequestBindingException: {} : {}", ex.getMessage(), ExceptionUtils.getStackTrace(ex));
 
-		return new ResponseEntity<>(new DefaultWebResultResponse<>("Error !!!!! handleServletRequestBindingException", ex.getLocalizedMessage()), status);
+		return new ResponseEntity<>(new DefaultWebResultResponse<>(HttpStatus.valueOf(status.value()), "Error !!!!! handleServletRequestBindingException"), status);
 	}
 
 	@Override
@@ -94,7 +94,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 			HttpStatusCode status, WebRequest request) {
 		LOGGER.error("ConversionNotSupportedException: {} : {}", ex.getMessage(), ExceptionUtils.getStackTrace(ex));
 
-		return new ResponseEntity<>(new DefaultWebResultResponse<>("Error !!!!! handleConversionNotSupported", ex.getLocalizedMessage()), status);
+		return new ResponseEntity<>(new DefaultWebResultResponse<>(HttpStatus.valueOf(status.value()), "Error !!!!! handleConversionNotSupported"), status);
 	}
 
 	@Override
@@ -103,7 +103,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 			HttpStatusCode status, WebRequest request) {
 		LOGGER.error("TypeMismatchException: {} : {}", ex.getMessage(), ExceptionUtils.getStackTrace(ex));
 
-		return new ResponseEntity<>(new DefaultWebResultResponse<>("Error !!!!! handleTypeMismatch", ex.getLocalizedMessage()), status);
+		return new ResponseEntity<>(new DefaultWebResultResponse<>(HttpStatus.valueOf(status.value()), "Error !!!!! handleTypeMismatch"), status);
 	}
 
 	@Override
@@ -112,7 +112,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 			HttpStatusCode status, WebRequest request) {
 		LOGGER.error("HttpMessageNotReadableException: {} : {}", ex.getMessage(), ExceptionUtils.getStackTrace(ex));
 
-		return new ResponseEntity<>(new DefaultWebResultResponse<>("Error !!!!! handleHttpMessageNotReadable", ex.getMessage() + "--" + ex.getLocalizedMessage()), status);
+		return new ResponseEntity<>(new DefaultWebResultResponse<>(HttpStatus.valueOf(status.value()), "Error !!!!! handleHttpMessageNotReadable"), status);
 	}
 
 	@Override
@@ -121,17 +121,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 			HttpStatusCode status, WebRequest request) {
 		LOGGER.error("HttpMessageNotWritableException: {} : {}", ex.getMessage(), ExceptionUtils.getStackTrace(ex));
 
-		return new ResponseEntity<>(new DefaultWebResultResponse<>("Error !!!!! handleHttpMessageNotWritable", ex.getMessage() + "-----" + ex.getLocalizedMessage()), status);
-	}
-
-	@ExceptionHandler({MethodArgumentTypeMismatchException.class})
-	public ResponseEntity<Object> handleMethodArgumentTypeMismatch(
-			MethodArgumentTypeMismatchException ex, WebRequest request) {
-		String error =
-				ex.getName() + " should be of type " + ex.getRequiredType().getName();
-		LOGGER.error("MethodArgumentTypeMismatchException: {} : {}", ex.getMessage(), ExceptionUtils.getStackTrace(ex));
-
-		return new ResponseEntity<>(new DefaultWebResultResponse<>("Error !!!!! handleMethodArgumentTypeMismatch", error), HttpStatus.BAD_REQUEST);
+		return new ResponseEntity<>(new DefaultWebResultResponse<>(HttpStatus.valueOf(status.value()), "Error !!!!! handleHttpMessageNotWritable"), status);
 	}
 
 	@Override
@@ -140,7 +130,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 		String error = "No handler found for " + ex.getHttpMethod() + " " + ex.getRequestURL();
 		LOGGER.error("NoHandlerFoundException: {} : {}", ex.getMessage(), ExceptionUtils.getStackTrace(ex));
 
-		return new ResponseEntity<>(new DefaultWebResultResponse<>("Error !!!!! handleNoHandlerFoundException", error), status);
+		return new ResponseEntity<>(new DefaultWebResultResponse<>(HttpStatus.valueOf(status.value()),"Error !!!!! handleNoHandlerFoundException"), status);
 	}
 
 	@Override
@@ -148,7 +138,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 			MissingServletRequestPartException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
 		LOGGER.error("MissingServletRequestPartException: {} : {}", ex.getMessage(), ExceptionUtils.getStackTrace(ex));
 
-		return new ResponseEntity<>(new DefaultWebResultResponse<>("Error !!!!! handleMissingServletRequestPart", ex.getLocalizedMessage()), status);
+		return new ResponseEntity<>(new DefaultWebResultResponse<>(HttpStatus.valueOf(status.value()),"Error !!!!! handleMissingServletRequestPart"), status);
 	}
 
 	@Override
@@ -156,7 +146,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 			AsyncRequestTimeoutException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
 		LOGGER.error("AsyncRequestTimeoutException: {} : {}", ex.getMessage(), ExceptionUtils.getStackTrace(ex));
 
-		return new ResponseEntity<>(new DefaultWebResultResponse<>("Error !!!!! handleAsyncRequestTimeoutException", ex.getLocalizedMessage()), status);
+		return new ResponseEntity<>(new DefaultWebResultResponse<>(HttpStatus.valueOf(status.value()),"Error !!!!! handleAsyncRequestTimeoutException"), status);
 	}
 
 	@Override
@@ -171,7 +161,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 		ex.getSupportedMediaTypes().forEach(t -> builder.append(t + ", "));
 		LOGGER.error("HttpMediaTypeNotSupportedException: {} : {}", ex.getMessage(), ExceptionUtils.getStackTrace(ex));
 
-		return new ResponseEntity<>(new DefaultWebResultResponse<>("Error !!!!! handleHttpMediaTypeNotSupported", ex.getLocalizedMessage()), status);
+		return new ResponseEntity<>(new DefaultWebResultResponse<>(HttpStatus.valueOf(status.value()),"Error !!!!! handleHttpMediaTypeNotSupported"), status);
 	}
 
 	@Override
@@ -182,7 +172,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 			WebRequest request) {
 		LOGGER.error("MissingPathVariableException: {} : {}", ex.getMessage(), ExceptionUtils.getStackTrace(ex));
 
-		return new ResponseEntity<>(new DefaultWebResultResponse<>("Error !!!!! handleMissingPathVariable", ex.getLocalizedMessage()), status);
+		return new ResponseEntity<>(new DefaultWebResultResponse<>(HttpStatus.valueOf(status.value()),"Error !!!!! handleMissingPathVariable"), status);
 	}
 
 	@Override
@@ -193,16 +183,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 			WebRequest request) {
 		LOGGER.error("HttpMediaTypeNotAcceptableException: {} : {}", ex.getMessage(), ExceptionUtils.getStackTrace(ex));
 
-		return new ResponseEntity<>(new DefaultWebResultResponse<>("Error !!!!! handleHttpMediaTypeNotAcceptable", ex.getLocalizedMessage()), status);
-	}
-
-	@ExceptionHandler(value
-			= {IllegalArgumentException.class, IllegalStateException.class})
-	protected ResponseEntity<Object> handleConflict(
-			RuntimeException ex, WebRequest request) {
-		String bodyOfResponse = "This should be application specific";
-		LOGGER.error("RuntimeException: {} : {}", ex.getMessage(), ExceptionUtils.getStackTrace(ex));
-		return new ResponseEntity<>(new DefaultWebResultResponse<>(bodyOfResponse, ex.getLocalizedMessage()), HttpStatus.BAD_REQUEST);
+		return new ResponseEntity<>(new DefaultWebResultResponse<>(HttpStatus.valueOf(status.value()),"Error !!!!! handleHttpMediaTypeNotAcceptable"), status);
 	}
 
 	@ExceptionHandler(Exception.class)

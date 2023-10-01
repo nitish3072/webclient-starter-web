@@ -1,9 +1,6 @@
 package com.nitish.web;
 
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
+import org.springframework.http.*;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.BodyExtractors;
 import org.springframework.web.reactive.function.BodyInserters;
@@ -14,22 +11,13 @@ import reactor.core.publisher.Mono;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 
+// Considering response type is a Map
 public class MonoCallback {
 
-    public static <T> Mono<DefaultWebResultResponse<T>> createMonoOutput(HttpMethod method, URI uri, HttpHeaders headers, MultiValueMap<String, Object> allReqParams, Function<ClientResponse, AbstractWebResultResponse> handlerFunction) {
-        WebClient.RequestHeadersSpec<?> response = WebClient.builder()
-                .filter(responseFilter())
-                .build()
-                .method(method)
-                .uri(uri)
-                .body(BodyInserters.fromMultipartData(allReqParams))
-                .headers(httpHeaders -> httpHeaders.addAll(headers));
-        return response.exchangeToMono(exchangeAndHandleToMono(handlerFunction));
-    }
-
-    public static <T> Mono<DefaultWebResultResponse<T>> createMonoOutput(HttpMethod method, URI uri, HttpHeaders headers, MultiValueMap<String, Object> allReqParams) {
+    public static Mono<DefaultWebResultResponse<Map>> createMonoOutput(HttpMethod method, URI uri, HttpHeaders headers, MultiValueMap<String, Object> allReqParams) {
         WebClient.RequestHeadersSpec<?> response = WebClient.builder()
                 .filter(responseFilter())
                 .build()
@@ -40,19 +28,19 @@ public class MonoCallback {
         return response.exchangeToMono(exchangeAndHandleDefaultToMono());
     }
 
-    public static Function<ClientResponse, Mono<? extends AbstractWebResultResponse>> exchangeAndHandleToMono(Function<ClientResponse, AbstractWebResultResponse> function) {
-        return clientResponse -> Mono.just(function.apply(clientResponse));
-    }
-
-    public static Function<ClientResponse, Mono<? extends AbstractWebResultResponse>> exchangeAndHandleDefaultToMono() {
+    public static Function<ClientResponse, Mono<DefaultWebResultResponse<Map>>> exchangeAndHandleDefaultToMono() {
         return clientResponse -> {
             if (clientResponse.statusCode().equals(HttpStatus.OK)) {
-                clientResponse.body(BodyExtractors.)
-                return clientResponse.bodyToMono(DefaultWebResultResponse.class);
+                return clientResponse.bodyToMono(Map.class).map(abstractWebResultResponse -> {
+                    DefaultWebResultResponse<Map> defaultWebResultResponse = new DefaultWebResultResponse<>(HttpStatus.OK, abstractWebResultResponse);
+                    return defaultWebResultResponse;
+                });
             } else if (clientResponse.statusCode().is4xxClientError()
                     || clientResponse.statusCode().is5xxServerError()) {
-                return clientResponse.createException()
-                        .flatMap(Mono::error);
+                return clientResponse.bodyToMono(Map.class).map(abstractWebResultResponse -> {
+                    DefaultWebResultResponse<Map> defaultWebResultResponse = new DefaultWebResultResponse<>(HttpStatus.valueOf(clientResponse.statusCode().value()), abstractWebResultResponse);
+                    return defaultWebResultResponse;
+                });
             } else {
                 return clientResponse.createException()
                         .flatMap(Mono::error);
