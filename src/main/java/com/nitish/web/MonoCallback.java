@@ -1,11 +1,12 @@
 package com.nitish.web;
 
-import org.springframework.http.*;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.reactive.function.BodyExtractors;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.ClientResponse;
-import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
@@ -18,17 +19,18 @@ import java.util.function.Function;
 public class MonoCallback {
 
     public static Mono<DefaultWebResultResponse<Map>> createMonoOutput(HttpMethod method, URI uri, HttpHeaders headers, MultiValueMap<String, Object> allReqParams) {
-        WebClient.RequestHeadersSpec<?> response = WebClient.builder()
-                .filter(responseFilter())
+        WebClient.RequestBodySpec response = WebClient.builder()
                 .build()
                 .method(method)
-                .uri(uri)
-                .body(BodyInserters.fromMultipartData(allReqParams))
-                .headers(httpHeaders -> httpHeaders.addAll(headers));
+                .uri(uri);
+        if(allReqParams!=null && !allReqParams.isEmpty()) {
+            response.body(BodyInserters.fromMultipartData(allReqParams));
+        }
+        response.headers(httpHeaders -> httpHeaders.addAll(headers));
         return response.exchangeToMono(exchangeAndHandleDefaultToMono());
     }
 
-    public static Function<ClientResponse, Mono<DefaultWebResultResponse<Map>>> exchangeAndHandleDefaultToMono() {
+    private static Function<ClientResponse, Mono<DefaultWebResultResponse<Map>>> exchangeAndHandleDefaultToMono() {
         return clientResponse -> {
             if (clientResponse.statusCode().equals(HttpStatus.OK)) {
                 return clientResponse.bodyToMono(Map.class).map(abstractWebResultResponse -> {
@@ -46,55 +48,6 @@ public class MonoCallback {
                         .flatMap(Mono::error);
             }
         };
-    }
-
-    public static ExchangeFilterFunction responseFilter() {
-        return ExchangeFilterFunction.ofResponseProcessor(clientResponse -> {
-            ClientResponse.Headers headers = clientResponse.headers();
-            MediaType cType = getMediaType(headers);
-            String contentDisposition = getContentDisposition(headers);
-            String acceptRanges = getAcceptRanges(headers);
-            ClientResponse.Builder cr = clientResponse.mutate()
-                    .body(clientResponse.body(BodyExtractors.toDataBuffers()));
-
-            if (cType != null) {
-                if (contentDisposition != null) {
-                    if (acceptRanges != null) {
-                        cr.header("Content-Disposition", contentDisposition)
-                                .header("Accept-Ranges", acceptRanges)
-                                .header("Content-Type", headers.contentType().get().getType());
-                    } else
-                        cr.header("Content-Disposition", contentDisposition)
-                                .header("Content-Type", headers.contentType().get().getType());
-                } else {
-                    cr.header("Content-Type", headers.contentType().get().getType());
-                }
-
-            }
-            return Mono.just(cr.build());
-        });
-    }
-
-    public static String getAcceptRanges(ClientResponse.Headers headers) {
-        List<String> value = headers.header("Accept-Ranges");
-        if (value == null || value.size() == 0) {
-            return null;
-        } else {
-            return value.get(0);
-        }
-    }
-
-    public static String getContentDisposition(ClientResponse.Headers headers) {
-        List<String> value = headers.header("Content-Disposition");
-        if (value == null || value.size() == 0) {
-            return null;
-        } else {
-            return value.get(0);
-        }
-    }
-
-    public static MediaType getMediaType(ClientResponse.Headers headers) {
-        return headers.contentType().orElse(null);
     }
 
 }
