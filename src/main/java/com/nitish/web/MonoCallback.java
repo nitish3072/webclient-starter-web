@@ -1,9 +1,9 @@
 package com.nitish.web;
 
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.ClientResponse;
@@ -11,20 +11,19 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 import java.net.URI;
-import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
 // Considering response type is a Map
 public class MonoCallback {
 
-    public static Mono<DefaultWebResultResponse<Map>> createMonoOutput(HttpMethod method, URI uri, HttpHeaders headers, MultiValueMap<String, Object> allReqParams) {
+    public static Mono<DefaultWebResultResponse<Map>> createMonoOutput(HttpMethod method, URI uri, HttpHeaders headers, Map<String, Object> map) {
         WebClient.RequestBodySpec response = WebClient.builder()
                 .build()
                 .method(method)
                 .uri(uri);
-        if(allReqParams!=null && !allReqParams.isEmpty()) {
-            response.body(BodyInserters.fromMultipartData(allReqParams));
+        if(map!=null && !map.isEmpty()) {
+            response.body(BodyInserters.fromValue(map));
         }
         response.headers(httpHeaders -> httpHeaders.addAll(headers));
         return response.exchangeToMono(exchangeAndHandleDefaultToMono());
